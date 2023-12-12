@@ -1,8 +1,10 @@
 #ifndef _COREMIME_H
 #define _COREMIME_H
 
-int MIME_init(const char *file);
-char *getFileMIME(char *fileType);
+#define MIME_FILE "./mime.json"
+
+int MIME_init();
+char *MIME_getFileMIME(char *fileName);
 void MIME_free();
 
 #endif

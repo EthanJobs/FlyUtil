@@ -1,23 +1,26 @@
-#include <coreMIME.h>
-#include <fcntl.h>
-#include <coreJson.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <stdio.h>
+#include <coreJson.h>
+#include <coreMIME.h>
 
 Json *MIME;
 
-int MIME_init(const char *file) {
-    int fileFd = open(file, O_RDONLY);
+int MIME_init() {
+    int fileFd = open(MIME_FILE, O_RDONLY);
     if (fileFd == -1) return 1;
 
-    char readBuf[1024];
-    read(fileFd, readBuf, 1024);
-    close(fileFd);
-
-    MIME = Json_stringInit(readBuf);
+    MIME = Json_initByFd(fileFd);
 }
 
-char *getFileMIME(char *fileType) {
-    // char jsonSearchTmp = 
+char *MIME_getFileMIME(char *fileName) {
+    int index;
+    for (index = strlen(fileName); index >= 0 && fileName[index] != '.'; index--);
+    if (fileName[index] != '.') return NULL;
+    jsonValue *jv = Json_getValueInObj(MIME, fileName + index + 1);
+    if (jv == NULL || jv->n_dataType != JSONSTR) return "";
+    return (char *)(jv->n_data.p_data);
 }
 
 void MIME_free() {

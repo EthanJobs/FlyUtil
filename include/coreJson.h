@@ -2,6 +2,7 @@
 #define _COREJSON_H
 
 #include <coreTree.h>
+#include <coreLink.h>
 
 // bool值为int
 #define False 0
@@ -15,6 +16,8 @@
 #define JSONNULL 4
 #define JSONNUMS 5      //Link结构
 #define JSONOBJ 6       //AVL树结构
+
+#define JSON_STR_MAX_SIZE 1024
 
 // json值
 typedef union jsonData {
@@ -41,11 +44,18 @@ void jsonValue_free(void *a);
 
 /* Json */
 Json *Json_init();
-Json *Json_stringInit(char *jsonStr);
 int Json_insertValue(Json *j, jsonValue *jv);
-jsonValue *Json_getValue(Json *j, char *queryJson);
+jsonValue *Json_getValueByQueryJson(Json *j, char *queryJson);
+jsonValue *Json_getValueInObj(Json *j, char *name);
+jsonValue *Json_getValueInNums(Link *l, int index);
 void Json_displayValue(Json *j);
 void Json_free(Json *j);
+
+/* JsonByString */
+Json *Json_initByString(char *jsonStr);
+
+/* JsonByFd */
+Json *Json_initByFd(int fd);
 
 #endif
 

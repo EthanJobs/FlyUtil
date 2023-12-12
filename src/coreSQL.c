@@ -3,7 +3,7 @@
 #include <mysql/mysql.h>
 #include <errno.h>
 
-MYSQL *MYSQL_init(const char *HOST, const char *USERNAME, const char *PASSWORD, const char *DATABASE, unsigned int timeout) {
+MYSQL *MYSQL_init(const char *host, const char *username, const char *password, const char *database, unsigned int timeout) {
     mysql_thread_init();
 
     MYSQL *sqlConnection = mysql_init(NULL);
@@ -17,11 +17,10 @@ MYSQL *MYSQL_init(const char *HOST, const char *USERNAME, const char *PASSWORD, 
         return NULL;
     }
 
-    mysql_real_connect(sqlConnection, HOST, USERNAME, PASSWORD, DATABASE, 3306, NULL, CLIENT_FOUND_ROWS);
+    mysql_real_connect(sqlConnection, host, username, password, database, 3306, NULL, CLIENT_FOUND_ROWS);
     if (sqlConnection) {
         return sqlConnection;
-    }
-    else {
+    } else {
         printf("[resourceSQL ERROR]:mysql_connect\n");
         printf("%s\n", mysql_error(sqlConnection));
         return NULL;
@@ -41,8 +40,7 @@ void sendSqlRes(MYSQL *sqlConnection, const char *sql, int fd) {
     res = mysql_query(sqlConnection, sql);
     if (res) {
         printf("[resourceSQL ERROR]:mysql_query %s\n", mysql_error(sqlConnection));
-    }
-    else {
+    } else {
         res_ptr = mysql_store_result(sqlConnection);
         if (res_ptr) {
             row = mysql_num_rows(res_ptr);
@@ -81,8 +79,7 @@ MYSQL_RES *getSqlRes(MYSQL *sqlConnection, const char *sql) {
     res = mysql_query(sqlConnection, sql);
     if (res) {
         printf("[resourceSQL ERROR]:mysql_query %s\n", mysql_error(sqlConnection));
-    }
-    else {
+    } else {
         res_ptr = mysql_store_result(sqlConnection);
         return res_ptr;
     }
