@@ -27,7 +27,7 @@ MYSQL *MYSQL_init(const char *host, const char *username, const char *password, 
     }
 }
 
-void sendSqlRes(MYSQL *sqlConnection, const char *sql, int fd) {
+int sendSqlRes(MYSQL *sqlConnection, const char *sql, int fd) {
     if (sqlConnection == NULL || sql == NULL || fd <= 0) return;
 
     int res;
@@ -40,33 +40,35 @@ void sendSqlRes(MYSQL *sqlConnection, const char *sql, int fd) {
     res = mysql_query(sqlConnection, sql);
     if (res) {
         printf("[resourceSQL ERROR]:mysql_query %s\n", mysql_error(sqlConnection));
-    } else {
-        res_ptr = mysql_store_result(sqlConnection);
-        if (res_ptr) {
-            row = mysql_num_rows(res_ptr);
-            col = mysql_num_fields(res_ptr);
-
-            fields = mysql_fetch_fields(res_ptr);
-            dprintf(fd, "{\"affectedRows\":\"%ld\", \"fields\":[", mysql_affected_rows(sqlConnection));
-            for (int i = 0; i < col; i++) {
-                if (i) dprintf(fd, ",");
-                dprintf(fd, "\"%s\"", fields[i].name);
-            }
-            dprintf(fd, "],\"data\":[");
-            for (int i = 0; i < row; i++) {
-                if (i) dprintf(fd, ",");
-                res_row = mysql_fetch_row(res_ptr);
-                dprintf(fd, "[");
-                for (int j = 0; j < col; j++) {
-                    if (j) dprintf(fd, ",");
-                    dprintf(fd, "\"%s\"", res_row[j]);
-                }
-                dprintf(fd, "]");
-            }
-            dprintf(fd, "]}");
-        }
-        mysql_free_result(res_ptr);
+        return mysql_errno(sqlConnection);
     }
+
+    res_ptr = mysql_store_result(sqlConnection);
+    if (res_ptr) {
+        row = mysql_num_rows(res_ptr);
+        col = mysql_num_fields(res_ptr);
+
+        fields = mysql_fetch_fields(res_ptr);
+        dprintf(fd, "{\"affectedRows\":\"%ld\", \"fields\":[", mysql_affected_rows(sqlConnection));
+        for (int i = 0; i < col; i++) {
+            if (i) dprintf(fd, ",");
+            dprintf(fd, "\"%s\"", fields[i].name);
+        }
+        dprintf(fd, "],\"data\":[");
+        for (int i = 0; i < row; i++) {
+            if (i) dprintf(fd, ",");
+            res_row = mysql_fetch_row(res_ptr);
+            dprintf(fd, "[");
+            for (int j = 0; j < col; j++) {
+                if (j) dprintf(fd, ",");
+                dprintf(fd, "\"%s\"", res_row[j]);
+            }
+            dprintf(fd, "]");
+        }
+        dprintf(fd, "]}");
+    }
+    mysql_free_result(res_ptr);
+    return 0;
 }
 
 MYSQL_RES *getSqlRes(MYSQL *sqlConnection, const char *sql) {
