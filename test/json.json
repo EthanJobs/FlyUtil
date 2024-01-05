@@ -1,1 +1,15 @@
-{"TI_no":"123456","TI_password":"123456","lastDate":"987654321"}
+{
+  "boolean": true,
+  "number": 42,
+  "string": "Hello, world!",
+  "object": { "name": "John", "age": 30, "city": "New York" },
+  "objectList": [
+    { "name": "John", "age": 30, "city": "New York" },
+    { "name": "YueHan", "age": 25, "city": "New York" }
+  ],
+  "null": null,
+  "undefined": "undefined",
+  "date": "2023-06-20T15:30:00Z",
+  "symbol": "SYMBOL",
+  "bigint": "9007199254740991"
+}

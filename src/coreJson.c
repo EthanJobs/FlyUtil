@@ -378,6 +378,7 @@ jsonValue *jsonValue_creatByFd(int fd, int *state, char *tmp, int hasName) {
             dt = JSONSTR;
             jd.p_data = (void *)jsonData_returnStrByFd(fd, state, tmp);
             if ((char *)jd.p_data == NULL) break;
+            *state = read(fd, tmp, 1);
         } else if (*tmp == 't') {
             if (judgeStringByFd(fd, state, tmp, "true")) break;
             dt = JSONBOOL;
@@ -394,10 +395,12 @@ jsonValue *jsonValue_creatByFd(int fd, int *state, char *tmp, int hasName) {
             dt = JSONNUMS;
             jd.p_data = (void *)Json_Nums_initByFd(fd, state, tmp);
             if ((Link *)jd.p_data == NULL) break;
+            *state = read(fd, tmp, 1);
         } else if (*tmp == '{') {
             dt = JSONOBJ;
             jd.p_data = (void *)Json_Obj_initByFd(fd, state, tmp);
             if ((Json *)jd.p_data == NULL) break;
+            *state = read(fd, tmp, 1);
         } else {
             break;
         }
@@ -422,7 +425,7 @@ Link *Json_Nums_initByFd(int fd, int *state, char *tmp) {
         if (jv == NULL) break;
         Link_tailInsertValue(l, (void *)jv);
 
-        for (*state = read(fd, tmp, 1); *state > 0 && (*tmp == ' ' || *tmp == '\n' || *tmp == '\r'); *state = read(fd, tmp, 1));
+        for (; *state > 0 && (*tmp == ' ' || *tmp == '\n' || *tmp == '\r'); *state = read(fd, tmp, 1));
         if (*state <= 0) break;
 
         if (*tmp == ',') continue;
@@ -447,7 +450,7 @@ Json *Json_Obj_initByFd(int fd, int *state, char *tmp) {
         if (jv == NULL) break;
         Json_insertValue(j, jv);
 
-        for (*state = read(fd, tmp, 1); *state > 0 && (*tmp == ' ' || *tmp == '\n' || *tmp == '\r'); *state = read(fd, tmp, 1));
+        for (; *state > 0 && (*tmp == ' ' || *tmp == '\n' || *tmp == '\r'); *state = read(fd, tmp, 1));
         if (*state <= 0) break;
 
         if (*tmp == ',') continue;

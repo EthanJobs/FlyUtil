@@ -28,7 +28,7 @@ MYSQL *MYSQL_init(const char *host, const char *username, const char *password, 
 }
 
 int sendSqlRes(MYSQL *sqlConnection, const char *sql, int fd) {
-    if (sqlConnection == NULL || sql == NULL || fd <= 0) return;
+    if (sqlConnection == NULL || sql == NULL || fd <= 0) return -1;
 
     int res;
     MYSQL_RES *res_ptr;
